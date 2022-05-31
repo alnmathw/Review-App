@@ -7,22 +7,97 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 		model = User
 		fields = ['url', 'username', 'email', 'groups']
 
+class RegisterUserSerializer(serializers.HyperlinkedModelSerializer):
+	def create(self, validated_data):
+		user = User.objects.create_user(
+			email=validated_data['email'],
+			username = validated_data['username'],
+			password = validated_data['password']
+		)
+
+		return user
+
+	class Meta:
+		model = User
+		fields = ['url', 'username', 'password', 'email', 'groups']
+
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Group
 		fields = ['url', 'name']
 
-class ReviewSerializer(serializers.HyperlinkedModelSerializer):
+class ReviewReadSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Review
+		depth = 1
 		fields = '__all__'
 
-class BusinessSerializer(serializers.HyperlinkedModelSerializer):
+class ReviewWriteSerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = Review
+		fields = ['url', 'title', 'content', 'stars', 'business']
+
+class BusinessReadSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Business
-		fields = '__all__'
+		depth = 1
+		fields = [
+			'url',
+			'name',
+			'slug',
+			'description',
+			'price_range',
+			'street_address',
+			'city',
+			'region',
+			'postal_code',
+			'country',
+			'website',
+			'phone',
+			'hours',
+			'reviews',
+		]
 
-class CategorySerializer(serializers.HyperlinkedModelSerializer):
+class BusinessWriteSerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = Business
+		fields = [
+			'url',
+			'name',
+			'slug',
+			'description',
+			'price_range',
+			'street_address',
+			'city',
+			'region',
+			'postal_code',
+			'country',
+			'website',
+			'phone',
+			'hours',
+			'reviews',
+		]
+
+class CategoryReadSerializer(serializers.HyperlinkedModelSerializer):
+	business = BusinessReadSerializer(many=True)
 	class Meta:
 		model = Category
-		fields = '__all__'
+		depth = 1
+		fields = [
+			'url',
+			'name',
+			'slug',
+			'ordinal',
+			'business'
+		]
+
+class CategoryWriteSerializer(serializers.HyperlinkedModelSerializer):
+	class Meta:
+		model = Category
+		fields = [
+			'url',
+			'name',
+			'slug',
+			'ordinal',
+			'business'
+		]
